@@ -137,11 +137,11 @@ def draw_grid(screen, size):
     for i in range(size + 1):
         pygame.draw.rect(screen, constants.LINE_COLOR,
                          (i * constants.CELL_SIZE + constants.CELL_SIZE - constants.GRID_LINE_WIDTH / 2, 0,
-                          constants.GRID_LINE_WIDTH, constants.CELL_SIZE * 10))
+                          constants.GRID_LINE_WIDTH, constants.CELL_SIZE * (size + 2)))
     for i in range(size + 1):
         pygame.draw.rect(screen, constants.LINE_COLOR,
                          (0, i * constants.CELL_SIZE + constants.CELL_SIZE - constants.GRID_LINE_WIDTH / 2,
-                          constants.CELL_SIZE * 10, constants.GRID_LINE_WIDTH))
+                          constants.CELL_SIZE * (size + 2), constants.GRID_LINE_WIDTH))
 
 
 def draw_food(screen, food):
@@ -173,8 +173,27 @@ def draw_snake(screen, snake):
         snake_body = snake_body.child
 
 
+def draw_margin(screen, size):
+    # Left line margin
+    pygame.draw.rect(screen, constants.MARGIN_BACKGROUND, (0, constants.MARGIN,
+                                                           constants.MARGIN, constants.CELL_SIZE * size))
+    # Right line margin
+    pygame.draw.rect(screen, constants.MARGIN_BACKGROUND,
+                     (constants.MARGIN + constants.CELL_SIZE * size, constants.MARGIN,
+                      constants.MARGIN, constants.CELL_SIZE * size))
+    # Top line margin
+    pygame.draw.rect(screen, constants.MARGIN_BACKGROUND, (0, 0,
+                                                           constants.MARGIN * 2 + constants.CELL_SIZE * size,
+                                                           constants.MARGIN))
+    # Bottom line margin
+    pygame.draw.rect(screen, constants.MARGIN_BACKGROUND, (0, constants.MARGIN + constants.CELL_SIZE * size,
+                                                           constants.MARGIN * 2 + constants.CELL_SIZE * size,
+                                                           constants.MARGIN))
+
+
 def draw_state(screen, size, snake, food):
     # Draw everything on the map
     draw_grid(screen, size)
+    draw_margin(screen, size)
     draw_snake(screen, snake)
     draw_food(screen, food)
