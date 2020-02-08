@@ -1,5 +1,7 @@
 from constants import constants
 from helpers import helpers
+import random
+
 
 class SnakeNode:
     def __init__(self, x, y, head=None):
@@ -73,6 +75,8 @@ class Snake:
         self.screen_size = screen_size
         self.snake = MySnake()
         self.state = self.get_state()
+        food_x, food_y = self.pick_food_coords()
+        self.food = Food(food_x, food_y)
 
     def print_snake(self):
         self.snake.print_snake()
@@ -95,6 +99,13 @@ class Snake:
     def print_state(self):
         for row in self.state:
             print(row)
+
+    def pick_food_coords(self):
+        empty_state, empty_index = helpers.empty_cells(self.state)
+        random_index = random.randrange(len(empty_index))
+        food_x = empty_index[random_index] % (self.screen_size + 2)
+        food_y = empty_index[random_index] // (self.screen_size + 2)
+        return food_x, food_y
 
     def step(self, given_direction):
         # If a given is opposite to current direction -> move in a current direction else in a given direction
@@ -120,5 +131,3 @@ class Snake:
 
         if result == "play":
             self.snake.remove_tail()
-
-

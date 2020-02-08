@@ -109,4 +109,4 @@ def empty_cells(state):
     flat_state_margin, flat_state_index = flatten_index_state(state)
     flat_state_margin, flat_index_margin = remove_margin_coords(flat_state_margin, flat_state_index)
     flat_state_snake, flat_index_snake = remove_snake_coords(flat_state_margin, flat_index_margin)
-
+    return flat_state_snake, flat_index_snake
