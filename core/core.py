@@ -1,10 +1,21 @@
 from constants import constants
+from helpers import helpers
 
 class SnakeNode:
-    def __init__(self, x, y, head):
+    def __init__(self, x, y, head=None):
         self.x = x
         self.y = y
         self.child = head
+
+
+class Food:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def reinitialize(self, x, y):
+        self.x = x
+        self.y = y
 
 
 class MySnake:
@@ -13,6 +24,7 @@ class MySnake:
         self.size = size_iterator = constants.MIN_SNAKE_SIZE
         head_x = 0
         head_y = 0
+        self.footprint = SnakeNode(head_x, head_y)
         while size_iterator > 0:
             self.head = SnakeNode(head_x, head_y, self.head)
             head_x += 1
@@ -40,7 +52,6 @@ class MySnake:
         child.child = None
 
     def move(self, direction):
-        print(direction)
         # Create a head at a new position of snake's head depending on where it moves
         if direction == 0:  # Move Left
             new_head = SnakeNode(self.head.x - 1, self.head.y, self.head)
@@ -57,9 +68,11 @@ class MySnake:
 
 class Snake:
     """Snake game environment"""
-    def __init__(self):
+    def __init__(self, screen_size=constants.SCREEN_SIZES[0]):
         self.direction = 2
+        self.screen_size = screen_size
         self.snake = MySnake()
+        self.state = []
 
     def print_snake(self):
         self.snake.print_snake()
@@ -73,6 +86,16 @@ class Snake:
     def check_if_won(self):
         return False
 
+    def check_if_food(self):
+        print("No food")
+
+    def get_state(self):
+        self.state = helpers.make_state(self.screen_size)
+
+    def print_state(self):
+        for row in self.state:
+            print(row)
+
     def step(self, given_direction):
         # If a given is opposite to current direction -> move in a current direction else in a given direction
         # Possible directions 0, 1, 2, 3. Absolute of difference between opposite directions is always 2
@@ -84,6 +107,9 @@ class Snake:
             self.snake.move(given_direction)
             self.direction = given_direction
 
+        # Check if after this play you have eaten food
+        self.check_if_food()
+
         result = "play"
         # Check if after this step you have lost
         if self.check_if_lost():
@@ -94,3 +120,5 @@ class Snake:
 
         if result == "play":
             self.snake.remove_tail()
+
+
