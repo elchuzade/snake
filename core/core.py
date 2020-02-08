@@ -1,6 +1,7 @@
 from constants import constants
 from helpers import helpers
 import random
+import pygame
 
 
 class SnakeNode:
@@ -89,6 +90,10 @@ class MySnake:
 class Snake:
     """Snake game environment"""
     def __init__(self, screen_size=constants.SCREEN_SIZES[0]):
+        self.mode = "player"
+        self.action_taken = False  # To restrict input actions with game step actions
+        self.action_size = len(constants.ACTIONS)  # Output of NN
+        self.state_size = int((screen_size + 2) * (screen_size + 2))  # Input to NN
         self.food = None
         self.snake = None
         self.direction = 2
@@ -98,6 +103,56 @@ class Snake:
         self.state = self.get_state()  # Add snake to state
         self.make_food()  # Add food to state
         self.snake_size = self.snake.get_size()
+
+    def __initialize_game(self):
+        pygame.init()
+        pygame.display.set_caption("Snake Game by {}".format(self.mode))
+        size = (self.screen_size + 2) * constants.CELL_SIZE, (self.screen_size + 2) * constants.CELL_SIZE
+        screen = pygame.display.set_mode(size)
+        # Clock is set to keep track of frames
+        clock = pygame.time.Clock()
+        pygame.display.flip()
+        frame = 1
+        while True:
+            clock.tick(constants.FPS)
+            pygame.event.pump()
+            for event in pygame.event.get():
+                if self.mode == "player" and not self.action_taken:
+                    # Look for any button press action
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_LEFT:
+                            action = 0  # 0 means go left
+                            self.step(action)
+
+                        elif event.key == pygame.K_UP:
+                            action = 1  # 1 means go up
+                            self.step(action)
+
+                        elif event.key == pygame.K_RIGHT:
+                            action = 2  # 2 means go right
+                            self.step(action)
+
+                        elif event.key == pygame.K_DOWN:
+                            action = 3  # 3 means go down
+                            self.step(action)
+
+                # Quit the game if the X symbol is clicked
+                if event.type == pygame.QUIT:
+                    print("pressing escape")
+                    pygame.quit()
+                    raise SystemExit
+
+                # Build up a black screen as a game background
+                screen.fill(constants.GAME_BACKGROUND)
+
+
+
+                if frame % 1 == 0:
+                    self.action_taken = False
+
+                # Update display
+                pygame.display.flip()
+                frame += 1
 
     def reset(self):
         self.food = None
