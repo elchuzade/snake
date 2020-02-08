@@ -32,6 +32,25 @@ class MySnake:
             head_x += 1
             size_iterator -= 1
 
+    def reinitialize(self):
+        self.head = None
+        self.size = size_iterator = constants.MIN_SNAKE_SIZE
+        head_x = 1
+        head_y = 1
+        self.footprint = SnakeNode(head_x, head_y)
+        while size_iterator > 0:
+            self.head = SnakeNode(head_x, head_y, self.head)
+            head_x += 1
+            size_iterator -= 1
+
+    def get_length(self):
+        length = 0
+        child = self.head
+        while child is not None:
+            child = child.child
+            length += 1
+        return length
+
     def get_size(self):
         child = self.head
         count = 0
@@ -85,10 +104,23 @@ class Snake:
         self.snake = MySnake()
         self.state = self.get_state()  # Add snake to state
         self.make_food()  # Add food to state
+        self.snake_length = self.snake.get_length()
+
+    def reset(self):
+        self.food = None
+        self.snake = None
+        self.direction = 2
+        self.state = self.get_state()  # Make empty state
+        self.snake = MySnake()
+        self.state = self.get_state()  # Add snake to state
+        self.make_food()  # Add food to state
 
     def make_food(self):
         food_x, food_y = self.pick_food_coords()
-        self.food = Food(food_x, food_y)
+        if self.food:
+            self.food.reinitialize(food_x, food_y)
+        else:
+            self.food = Food(food_x, food_y)
         self.state = self.get_state()    # Add food to state
 
     def print_snake(self):
@@ -98,6 +130,18 @@ class Snake:
         self.snake.get_size()
 
     def check_if_lost(self):
+        child = self.snake.head.child
+        # Head is on top of a body cell "hit itself"
+        while child.child is not None:
+            if child.x == self.snake.head.x and child.y == self.snake.head.y:
+                return True
+            child = child.child
+
+        # Head is outside of game boundaries "hit a wall"
+        if self.snake.head.x == 0 or self.snake.head.x == len(self.state) - 1 \
+                or self.snake.head.y == 0 or self.snake.head.y == len(self.state) - 1:
+            return True
+
         return False
 
     def check_if_won(self):
@@ -140,16 +184,17 @@ class Snake:
             self.state = self.get_state()  # Update state before adding new food
             self.make_food()
 
-        result = "play"
         # Check if after this step you have lost
         if self.check_if_lost():
             result = "lost"
+            print(result)
+
         # Check if after this step you have won
         if self.check_if_won():
             result = "win"
+            print(result)
 
-        if result == "play":
-            self.snake.remove_tail()
+        self.snake.remove_tail()
 
         self.state = self.get_state()
         return self.state
