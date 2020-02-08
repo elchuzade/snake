@@ -2,6 +2,15 @@ from constants import constants
 from helpers import helpers
 import random
 import pygame
+import numpy as np
+
+class Model:
+    def __init__(self):
+        self.placeholder = True
+
+    def predict(self, state):
+        action = random.randrange(4)
+        return action
 
 
 class SnakeNode:
@@ -89,8 +98,9 @@ class MySnake:
 
 class Snake:
     """Snake game environment"""
-    def __init__(self, screen_size=constants.SCREEN_SIZES[0]):
-        self.mode = "player"
+    def __init__(self, mode=constants.GAME_MODE, screen_size=constants.SCREEN_SIZES[0], speed=constants.GAME_SPEED):
+        self.mode = mode
+        self.action_frequency = constants.FPS / speed
         self.action_taken = False  # To restrict input actions with game step actions
         self.action_size = len(constants.ACTIONS)  # Output of NN
         self.state_size = int((screen_size + 2) * (screen_size + 2))  # Input to NN
@@ -103,6 +113,16 @@ class Snake:
         self.state = self.get_state()  # Add snake to state
         self.make_food()  # Add food to state
         self.snake_size = self.snake.get_size()
+        self.model = Model()
+
+    def reset(self):
+        self.food = None
+        self.snake = None
+        self.direction = 2
+        self.state = self.get_state()  # Make empty state
+        self.snake = MySnake()
+        self.state = self.get_state()  # Add snake to state
+        self.make_food()  # Add food to state
 
     def __initialize_game(self):
         pygame.init()
@@ -117,6 +137,12 @@ class Snake:
             clock.tick(constants.FPS)
             pygame.event.pump()
             for event in pygame.event.get():
+                # Quit the game if the X symbol is clicked
+                if event.type == pygame.QUIT:
+                    print("pressing escape")
+                    pygame.quit()
+                    raise SystemExit
+
                 if self.mode == "player" and not self.action_taken:
                     # Look for any button press action
                     if event.type == pygame.KEYDOWN:
@@ -136,35 +162,28 @@ class Snake:
                             action = 3  # 3 means go down
                             self.step(action)
 
-                # Quit the game if the X symbol is clicked
-                if event.type == pygame.QUIT:
-                    print("pressing escape")
-                    pygame.quit()
-                    raise SystemExit
+            if self.mode == "ai":
+                if frame % self.action_frequency == 0:
+                    reshaped_state = np.reshape(self.state, [1, self.state_size])
+                    action = self.model.predict(reshaped_state)
+                    _ = self.step(action)
+                    if self.check_if_lost() or self.check_if_lost():
+                        self.reset()
 
-                # Build up a black screen as a game background
-                screen.fill(constants.GAME_BACKGROUND)
+            # Build up a black screen as a game background
+            screen.fill(constants.GAME_BACKGROUND)
 
-                helpers.draw_state(screen, self.screen_size, self.snake, self.food)
+            helpers.draw_state(screen, self.screen_size, self.snake, self.food)
 
-                if frame % 1 == 0:
-                    self.action_taken = False
+            # if frame % self.action_frequency == 0:
+            #     self.action_taken = False
 
-                # Update display
-                pygame.display.flip()
-                frame += 1
+            # Update display
+            pygame.display.flip()
+            frame += 1
 
     def play(self):
         self.__initialize_game()
-
-    def reset(self):
-        self.food = None
-        self.snake = None
-        self.direction = 2
-        self.state = self.get_state()  # Make empty state
-        self.snake = MySnake()
-        self.state = self.get_state()  # Add snake to state
-        self.make_food()  # Add food to state
 
     def make_food(self):
         food_x, food_y = self.pick_food_coords()
@@ -198,6 +217,10 @@ class Snake:
         return False
 
     def check_if_won(self):
+        if self.snake_size == self.screen_size * self.screen_size:
+            print("You won!")
+            return True
+
         return False
 
     def check_if_food(self):
@@ -240,15 +263,12 @@ class Snake:
             self.snake.add_footprint()
             self.state = self.get_state()  # Update state before adding new food
             self.snake_size += 1
-            if self.snake_size == self.screen_size * self.screen_size:
-                print("You won!")
-            else:
+            if not self.check_if_won():
                 self.make_food()
 
         # Check if after this step you have lost
         if self.check_if_lost():
             result = "lost"
-            print(result)
 
         # Check if after this step you have won
         if self.check_if_won():
