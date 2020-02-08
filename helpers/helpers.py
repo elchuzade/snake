@@ -56,9 +56,9 @@ def add_snake(matrix, snake):
     # Add head of a snake
     matrix[snake.head.y][snake.head.x] = 2
     # Add body of a snake
-    child = snake.head.child
-    while child is not None:
-        matrix[child.y][child.x] = 1
+    child = snake.head
+    while child.child is not None:
+        matrix[child.child.y][child.child.x] = 1
         child = child.child
 
     return matrix
@@ -72,6 +72,7 @@ def add_food(matrix_snake, food):
 def make_state(screen_size, snake=None, food=None):
     matrix = make_zeros(screen_size)
     matrix_margin = add_state_margin(matrix)
+
     matrix_snake = matrix_margin
 
     if snake:
@@ -111,7 +112,8 @@ def remove_snake_coords(flat_state_margin, flat_index_margin):
     removed_flat_state = []
     removed_flat_index = []
     for i in range(len(flat_state_margin)):
-        if flat_state_margin[i] != 1 and flat_state_margin[i] != 2:
+        # Remove snake and food
+        if flat_state_margin[i] != 1 and flat_state_margin[i] != 2 and flat_state_margin[i] != 3:
             removed_flat_state.append(flat_state_margin[i])
             removed_flat_index.append(flat_index_margin[i])
 

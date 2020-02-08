@@ -43,14 +43,6 @@ class MySnake:
             head_x += 1
             size_iterator -= 1
 
-    def get_length(self):
-        length = 0
-        child = self.head
-        while child is not None:
-            child = child.child
-            length += 1
-        return length
-
     def get_size(self):
         child = self.head
         count = 0
@@ -76,6 +68,7 @@ class MySnake:
         while child.child.child is not None:
             child = child.child
 
+        self.footprint = child.child
         child.child = None
 
     def move(self, direction):
@@ -104,7 +97,7 @@ class Snake:
         self.snake = MySnake()
         self.state = self.get_state()  # Add snake to state
         self.make_food()  # Add food to state
-        self.snake_length = self.snake.get_length()
+        self.snake_size = self.snake.get_size()
 
     def reset(self):
         self.food = None
@@ -177,12 +170,17 @@ class Snake:
             self.snake.move(given_direction)
             self.direction = given_direction
 
+        self.snake.remove_tail()
+
         # Check if after this play you have eaten food
-        food = self.check_if_food()
-        if food:
+        if self.check_if_food():
             self.snake.add_footprint()
             self.state = self.get_state()  # Update state before adding new food
-            self.make_food()
+            self.snake_size += 1
+            if self.snake_size == self.screen_size * self.screen_size:
+                print("You won!")
+            else:
+                self.make_food()
 
         # Check if after this step you have lost
         if self.check_if_lost():
@@ -193,8 +191,6 @@ class Snake:
         if self.check_if_won():
             result = "win"
             print(result)
-
-        self.snake.remove_tail()
 
         self.state = self.get_state()
         return self.state

@@ -7,7 +7,7 @@ FPS = 30
 GAME_BACKGROUND = (0, 0, 0)  # RGB representation of black screen for pygame
 LINE_COLOR = (100, 100, 100)
 
-SCREEN_SIZES = [4, 10, 20, 30]  # Possible choices for a square screen side cells
+SCREEN_SIZES = [3, 10, 20, 30]  # Possible choices for a square screen side cells
 ACTIONS = [0, 1, 2, 3]  # 0 - go left, 1 - go up, 2 - go right, 3 - go down
 MIN_SNAKE_SIZE = 3  # How many cells the snake will hold at the beginning of every game
 GRID_LINE_WIDTH = 1
