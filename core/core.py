@@ -74,9 +74,11 @@ class Snake:
         self.direction = 2
         self.screen_size = screen_size
         self.snake = MySnake()
+        self.food = None
         self.state = self.get_state()
         food_x, food_y = self.pick_food_coords()
         self.food = Food(food_x, food_y)
+        self.state = self.get_state()
 
     def print_snake(self):
         self.snake.print_snake()
@@ -94,7 +96,7 @@ class Snake:
         print("No food")
 
     def get_state(self):
-        return helpers.make_state(self.screen_size, self.snake)
+        return helpers.make_state(self.screen_size, self.snake, self.food)
 
     def print_state(self):
         for row in self.state:

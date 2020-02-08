@@ -64,10 +64,18 @@ def add_snake(matrix, snake):
     return matrix
 
 
+def add_food(matrix_snake, food):
+    matrix_snake[food.y][food.x] = 3
+    return matrix_snake
+
+
 def make_state(screen_size, snake, food=None):
     matrix = make_zeros(screen_size)
     matrix_margin = add_state_margin(matrix)
     matrix_snake = add_snake(matrix_margin, snake)
+    if food:
+        matrix_food = add_food(matrix_snake, food)
+        return matrix_food
 
     return matrix_snake
 
