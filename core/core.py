@@ -24,8 +24,8 @@ class MySnake:
     def __init__(self):
         self.head = None
         self.size = size_iterator = constants.MIN_SNAKE_SIZE
-        head_x = 0
-        head_y = 0
+        head_x = 1
+        head_y = 1
         self.footprint = SnakeNode(head_x, head_y)
         while size_iterator > 0:
             self.head = SnakeNode(head_x, head_y, self.head)
@@ -45,6 +45,12 @@ class MySnake:
         while child is not None:
             print("x:", child.x, "|", "y:", child.y)
             child = child.child
+
+    def add_footprint(self):
+        child = self.head
+        while child.child is not None:
+            child = child.child
+        child.child = self.footprint
 
     def remove_tail(self):
         child = self.head
@@ -71,14 +77,19 @@ class MySnake:
 class Snake:
     """Snake game environment"""
     def __init__(self, screen_size=constants.SCREEN_SIZES[0]):
+        self.food = None
+        self.snake = None
         self.direction = 2
         self.screen_size = screen_size
+        self.state = self.get_state()  # Make empty state
         self.snake = MySnake()
-        self.food = None
-        self.state = self.get_state()
+        self.state = self.get_state()  # Add snake to state
+        self.make_food()  # Add food to state
+
+    def make_food(self):
         food_x, food_y = self.pick_food_coords()
         self.food = Food(food_x, food_y)
-        self.state = self.get_state()
+        self.state = self.get_state()    # Add food to state
 
     def print_snake(self):
         self.snake.print_snake()
@@ -93,7 +104,9 @@ class Snake:
         return False
 
     def check_if_food(self):
-        print("No food")
+        if self.snake.head.x == self.food.x and self.snake.head.y == self.food.y:
+            return True
+        return False
 
     def get_state(self):
         return helpers.make_state(self.screen_size, self.snake, self.food)
@@ -121,7 +134,11 @@ class Snake:
             self.direction = given_direction
 
         # Check if after this play you have eaten food
-        self.check_if_food()
+        food = self.check_if_food()
+        if food:
+            self.snake.add_footprint()
+            self.state = self.get_state()  # Update state before adding new food
+            self.make_food()
 
         result = "play"
         # Check if after this step you have lost
@@ -133,3 +150,6 @@ class Snake:
 
         if result == "play":
             self.snake.remove_tail()
+
+        self.state = self.get_state()
+        return self.state

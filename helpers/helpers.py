@@ -54,11 +54,11 @@ def add_state_margin(matrix):
 
 def add_snake(matrix, snake):
     # Add head of a snake
-    matrix[snake.head.y + 1][snake.head.x + 1] = 2
+    matrix[snake.head.y][snake.head.x] = 2
     # Add body of a snake
     child = snake.head.child
     while child is not None:
-        matrix[child.y + 1][child.x + 1] = 1
+        matrix[child.y][child.x] = 1
         child = child.child
 
     return matrix
@@ -69,15 +69,20 @@ def add_food(matrix_snake, food):
     return matrix_snake
 
 
-def make_state(screen_size, snake, food=None):
+def make_state(screen_size, snake=None, food=None):
     matrix = make_zeros(screen_size)
     matrix_margin = add_state_margin(matrix)
-    matrix_snake = add_snake(matrix_margin, snake)
+    matrix_snake = matrix_margin
+
+    if snake:
+        matrix_snake = add_snake(matrix_margin, snake)
+
+    matrix_food = matrix_snake
+
     if food:
         matrix_food = add_food(matrix_snake, food)
-        return matrix_food
 
-    return matrix_snake
+    return matrix_food
 
 
 def flatten_index_state(state):
