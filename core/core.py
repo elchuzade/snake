@@ -145,7 +145,7 @@ class Snake:
                 # Build up a black screen as a game background
                 screen.fill(constants.GAME_BACKGROUND)
 
-
+                helpers.draw_state(screen, self.screen_size, self.snake, self.food)
 
                 if frame % 1 == 0:
                     self.action_taken = False
@@ -153,6 +153,9 @@ class Snake:
                 # Update display
                 pygame.display.flip()
                 frame += 1
+
+    def play(self):
+        self.__initialize_game()
 
     def reset(self):
         self.food = None
@@ -165,11 +168,13 @@ class Snake:
 
     def make_food(self):
         food_x, food_y = self.pick_food_coords()
-        if self.food:
-            self.food.reinitialize(food_x, food_y)
-        else:
-            self.food = Food(food_x, food_y)
-        self.state = self.get_state()    # Add food to state
+        if food_x and food_y:
+            if self.food:
+                self.food.reinitialize(food_x, food_y)
+            else:
+                self.food = Food(food_x, food_y)
+
+        self.state = self.get_state()    # Add food to state if food coordinates exist
 
     def print_snake(self):
         self.snake.print_snake()
@@ -209,10 +214,13 @@ class Snake:
 
     def pick_food_coords(self):
         empty_state, empty_index = helpers.empty_cells(self.state)
-        random_index = random.randrange(len(empty_index))
-        food_x = empty_index[random_index] % (self.screen_size + 2)
-        food_y = empty_index[random_index] // (self.screen_size + 2)
-        return food_x, food_y
+        if len(empty_index) > 0:
+            random_index = random.randrange(len(empty_index))
+            food_x = empty_index[random_index] % (self.screen_size + 2)
+            food_y = empty_index[random_index] // (self.screen_size + 2)
+            return food_x, food_y
+        else:
+            return None, None
 
     def step(self, given_direction):
         # If a given is opposite to current direction -> move in a current direction else in a given direction

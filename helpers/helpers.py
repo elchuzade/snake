@@ -17,6 +17,8 @@
 -1   -1   -1   -1   -1   -1   -1   -1
 
 """
+import pygame
+from constants import constants
 
 
 def make_zeros(screen_size):
@@ -91,7 +93,7 @@ def flatten_index_state(state):
     flat_index = []
     for i, row in enumerate(state):
         for j, col in enumerate(row):
-            flat_index.append(i*len(row) + j)
+            flat_index.append(i * len(row) + j)
             flat_state.append(col)
 
     return flat_state, flat_index
@@ -125,3 +127,54 @@ def empty_cells(state):
     flat_state_margin, flat_index_margin = remove_margin_coords(flat_state_margin, flat_state_index)
     flat_state_snake, flat_index_snake = remove_snake_coords(flat_state_margin, flat_index_margin)
     return flat_state_snake, flat_index_snake
+
+
+"""PYGAME DRAWING FUNCTIONS"""
+
+
+def draw_grid(screen, size):
+    # Draws a grid to separate each game cell
+    for i in range(size + 1):
+        pygame.draw.rect(screen, constants.LINE_COLOR,
+                         (i * constants.CELL_SIZE + constants.CELL_SIZE - constants.GRID_LINE_WIDTH / 2, 0,
+                          constants.GRID_LINE_WIDTH, constants.CELL_SIZE * 10))
+    for i in range(size + 1):
+        pygame.draw.rect(screen, constants.LINE_COLOR,
+                         (0, i * constants.CELL_SIZE + constants.CELL_SIZE - constants.GRID_LINE_WIDTH / 2,
+                          constants.CELL_SIZE * 10, constants.GRID_LINE_WIDTH))
+
+
+def draw_food(screen, food):
+    # Draws a circle based on foods x and y coordinates
+    pygame.draw.circle(screen, constants.FOOD_COLOR,
+                       [int(food.x * constants.CELL_SIZE + constants.CELL_SIZE / 2),
+                        int(food.y * constants.CELL_SIZE + constants.CELL_SIZE / 2)],
+                       int(constants.FOOD_SIZE / 2))
+
+
+def draw_snake_head(screen, head):
+    pygame.draw.rect(screen, constants.SNAKE_HEAD_COLOR, (head.x * constants.CELL_SIZE,
+                                                          head.y * constants.CELL_SIZE,
+                                                          constants.CELL_SIZE, constants.CELL_SIZE))
+
+
+def draw_snake_body(screen, body):
+    pygame.draw.rect(screen, constants.SNAKE_BODY_COLOR, (body.x * constants.CELL_SIZE,
+                                                          body.y * constants.CELL_SIZE,
+                                                          constants.CELL_SIZE, constants.CELL_SIZE))
+
+
+def draw_snake(screen, snake):
+    # Draws rectangles on each cell of snake's coordinates
+    draw_snake_head(screen, snake.head)
+    snake_body = snake.head.child
+    while snake_body is not None:
+        draw_snake_body(screen, snake_body)
+        snake_body = snake_body.child
+
+
+def draw_state(screen, size, snake, food):
+    # Draw everything on the map
+    draw_grid(screen, size)
+    draw_snake(screen, snake)
+    draw_food(screen, food)
